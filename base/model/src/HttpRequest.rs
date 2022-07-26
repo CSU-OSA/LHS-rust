@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use super::HttpException::HttpException;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 struct HttpRequest {
     method: String,
     url_path: String,
@@ -56,16 +56,6 @@ impl HttpRequest {
         Ok(http_request.build())
     }
     //build模式初始化
-    fn default() -> Self {
-        Self {
-            method: String::from(""),
-            url_path: String::from(""),
-            url_parameters: Default::default(),
-            version: String::from(""),
-            parameters: Default::default(),
-            context: String::from(""),
-        }
-    }
     fn method(&mut self, value: String) -> &mut Self {
         self.method = value;
         self
@@ -101,6 +91,19 @@ impl HttpRequest {
             version: self.version,
             parameters: self.parameters,
             context: self.context,
+        }
+    }
+}
+
+impl Default for HttpRequest {
+    fn default() -> Self {
+        Self {
+            method: String::from(""),
+            url_path: String::from(""),
+            url_parameters: Default::default(),
+            version: String::from(""),
+            parameters: Default::default(),
+            context: String::from(""),
         }
     }
 }

@@ -1,5 +1,6 @@
 use String;
 use std::collections::HashMap;
+use chrono::prelude::*;
 
 struct HttpResponse{
     version : String,
@@ -10,5 +11,84 @@ struct HttpResponse{
 }
 
 impl HttpResponse {
+    fn context(&mut self,context:String)->&mut Self{
+        self.parameters.insert("Content-Length".to_string(), context.len().to_string());
+        self.context = context;
+        self
+    }
+    fn build(self)-> Self{
+        Self{
+            version: self.version,
+            status_code: self.status_code,
+            result_msg: self.result_msg,
+            parameters: self.parameters,
+            context: self.context
+        }
+    }
+}
 
+impl ToString for HttpResponse {
+    fn to_string(&self) -> String {
+        let a = (&self.version).to_string()+" ";
+        let mut response = (&self.version).to_string()+" "+(&self.status_code).to_string().as_str()+" "+(&self.result_msg)+"\r\n";
+        for parameter in &self.parameters {
+            let item = (parameter.0).to_string()+": "+ (parameter.1.as_str()) +"\r\n";
+            response+=item.as_str();
+        }
+        response+="\r\n";
+
+        response += &self.context;
+        if !self.context.is_empty() {
+            response+="\r\n";
+        }
+        response
+    }
+}
+
+trait New {
+    fn new() -> Self;
+}
+trait With{
+    fn with(version:String,status_code:i32,result_msg:String,parameters:HashMap<String,String>,context:String)->Self;
+}
+
+impl New for HttpResponse {
+    fn new() -> Self {
+        let http_date = get_utc_date();
+        let mut parameter:HashMap<String,String>= HashMap::new();
+        parameter.insert("Date".to_string(),http_date);
+        parameter.insert("Connection".to_string(),"close".to_string());
+        Self {
+            version: "".to_string(),
+            status_code: 0,
+            result_msg: "".to_string(),
+            parameters: parameter,
+            context: "".to_string()
+        }
+    }
+}
+
+impl With for HttpResponse {
+    fn with(version: String, status_code: i32, result_msg: String, parameters: HashMap<String, String>, context: String) ->Self {
+        let http_date = get_utc_date();
+        let mut parameter:HashMap<String,String>= HashMap::new();
+        parameter.insert("Date".to_string(),http_date);
+        parameter.insert("Connection".to_string(),"close".to_string());
+        parameter.insert("Content-Length".to_string(), context.len().to_string());
+        Self {
+            version,
+            status_code,
+            result_msg,
+            parameters: parameter,
+            context
+        }
+    }
+}
+
+fn get_utc_date()->String{
+    let now:DateTime<Utc> = Utc::now();
+    let fmt = "%a, %d %b %Y %H:%M:%S Utc";
+    let dft = now.format(fmt);
+    let http_date = dft.to_string();
+    http_date
 }
