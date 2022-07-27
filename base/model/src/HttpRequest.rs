@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use super::HttpException::HttpException;
 
 #[derive(Clone, Debug)]
-struct HttpRequest {
+pub struct HttpRequest {
     method: String,
     url_path: String,
     url_parameters: HashMap<String, String>,
@@ -55,6 +55,11 @@ impl HttpRequest {
         }
         Ok(http_request.build())
     }
+    pub fn get_url_path_add_methoduppercase(&self) ->String{
+        let method = self.method.to_uppercase();
+        let url = self.url_path.clone();
+        url+"::"+method.as_str()
+    }
     //build模式初始化
     fn method(&mut self, value: String) -> &mut Self {
         self.method = value;
@@ -83,14 +88,14 @@ impl HttpRequest {
         self.context = String::from(value);
         self
     }
-    pub fn build(self) -> HttpRequest {
+    pub fn build(&mut self) -> HttpRequest {
         HttpRequest {
-            method: self.method,
-            url_path: self.url_path,
-            url_parameters: self.url_parameters,
-            version: self.version,
-            parameters: self.parameters,
-            context: self.context,
+            method: self.method.clone(),
+            url_path: self.url_path.clone(),
+            url_parameters: self.url_parameters.clone(),
+            version: self.version.clone(),
+            parameters: self.parameters.clone(),
+            context: self.context.clone()
         }
     }
 }

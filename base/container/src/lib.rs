@@ -1,3 +1,5 @@
+mod HttpHandlerMap;
+
 #[cfg(test)]
 mod tests {
     #[test]

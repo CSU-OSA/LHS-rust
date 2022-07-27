@@ -1,6 +1,6 @@
-mod HttpException;
-mod HttpRequest;
-mod HttpResponse;
+pub mod HttpException;
+pub mod HttpRequest;
+pub mod HttpResponse;
 
 #[cfg(test)]
 mod tests {

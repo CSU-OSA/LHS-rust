@@ -2,7 +2,8 @@ use String;
 use std::collections::HashMap;
 use chrono::prelude::*;
 
-struct HttpResponse{
+#[derive(Debug)]
+pub struct HttpResponse{
     version : String,
     status_code:i32,
     result_msg:String,
@@ -11,18 +12,43 @@ struct HttpResponse{
 }
 
 impl HttpResponse {
-    fn context(&mut self,context:String)->&mut Self{
+    pub fn new() -> HttpResponse {
+        let http_date = get_utc_date();
+        let mut parameter:HashMap<String,String>= HashMap::new();
+        parameter.insert("Date".to_string(),http_date);
+        parameter.insert("Connection".to_string(),"close".to_string());
+        HttpResponse {
+            version: "".to_string(),
+            status_code: 0,
+            result_msg: "".to_string(),
+            parameters: parameter,
+            context: "".to_string()
+        }
+    }
+    pub fn context(&mut self,context:String)->&mut Self{
         self.parameters.insert("Content-Length".to_string(), context.len().to_string());
         self.context = context;
         self
     }
-    fn build(self)-> Self{
-        Self{
-            version: self.version,
-            status_code: self.status_code,
-            result_msg: self.result_msg,
-            parameters: self.parameters,
-            context: self.context
+    pub fn status_code(&mut self,status_code:i32)->&mut Self{
+        self.status_code=status_code;
+        self
+    }
+    pub fn result_msg(&mut self, result_msg: String) ->&mut Self{
+        self.result_msg = result_msg;
+        self
+    }
+    pub fn parameters_insert(&mut self,key:String,value:String)->&mut Self{
+        self.parameters.insert(key,value);
+        self
+    }
+    pub fn build(&mut self)->HttpResponse{
+        HttpResponse {
+            version: self.version.clone(),
+            status_code: self.status_code.clone(),
+            result_msg: self.result_msg.clone(),
+            parameters: self.parameters.clone(),
+            context: self.context.clone()
         }
     }
 }
@@ -45,34 +71,14 @@ impl ToString for HttpResponse {
     }
 }
 
-trait New {
-    fn new() -> Self;
-}
-trait With{
+pub trait With{
     fn with(version:String,status_code:i32,result_msg:String,parameters:HashMap<String,String>,context:String)->Self;
 }
-
-impl New for HttpResponse {
-    fn new() -> Self {
-        let http_date = get_utc_date();
-        let mut parameter:HashMap<String,String>= HashMap::new();
-        parameter.insert("Date".to_string(),http_date);
-        parameter.insert("Connection".to_string(),"close".to_string());
-        Self {
-            version: "".to_string(),
-            status_code: 0,
-            result_msg: "".to_string(),
-            parameters: parameter,
-            context: "".to_string()
-        }
-    }
-}
-
 impl With for HttpResponse {
     fn with(version: String, status_code: i32, result_msg: String, parameters: HashMap<String, String>, context: String) ->Self {
-        let http_date = get_utc_date();
-        let mut parameter:HashMap<String,String>= HashMap::new();
-        parameter.insert("Date".to_string(),http_date);
+        let http_time = get_utc_date();
+        let mut parameter:HashMap<String,String>= parameters;
+        parameter.insert("Date".to_string(), http_time);
         parameter.insert("Connection".to_string(),"close".to_string());
         parameter.insert("Content-Length".to_string(), context.len().to_string());
         Self {
