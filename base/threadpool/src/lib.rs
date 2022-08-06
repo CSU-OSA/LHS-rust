@@ -1,3 +1,7 @@
+mod pool;
+mod worker;
+mod job;
+
 #[cfg(test)]
 mod tests {
     #[test]
